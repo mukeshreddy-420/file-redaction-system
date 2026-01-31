@@ -1,0 +1,19 @@
+# Python virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Uploaded & redacted files
+backend/uploads/
+
+# Environment files
+.env
+
+# Editor / OS
+.vscode/
+.DS_Store
