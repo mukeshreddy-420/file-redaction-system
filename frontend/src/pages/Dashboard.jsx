@@ -9,7 +9,8 @@ const FILE_TYPES = [
   { id: "excel", label: "Excel", icon: "📊", desc: "XLSX only", accept: ".xlsx" },
 ];
 
-const API_BASE = "http://127.0.0.1:8000";
+// Updated URL (removed trailing slash to match code logic)
+const API_BASE = "https://file-redaction-system-production.up.railway.app";
 
 function getFirstNameFromEmail(email) {
   if (!email || typeof email !== "string") return "User";

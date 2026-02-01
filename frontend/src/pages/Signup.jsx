@@ -10,7 +10,8 @@ export default function Signup({ setShowSignup }) {
 
   const signup = async () => {
     try {
-      await axios.post("http://127.0.0.1:8000/auth/signup", {
+      // Updated URL
+      await axios.post("https://file-redaction-system-production.up.railway.app/auth/signup", {
         first_name: firstName,
         last_name: lastName,
         email,
