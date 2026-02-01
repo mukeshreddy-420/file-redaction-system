@@ -1,114 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>File Redaction System</title>
-  <link rel="stylesheet" href="css/auth.css" />
-  <link rel="stylesheet" href="css/dashboard.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>File Redaction System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Login screen -->
-  <div id="login-screen" class="auth-page screen">
-    <div id="login-error-popup" class="auth-popup-overlay" style="display: none;" aria-hidden="true">
-      <div class="auth-popup">
-        <p class="auth-popup-message">Invalid credentials</p>
-        <button type="button" class="btn primary auth-popup-btn" id="login-error-ok">OK</button>
-      </div>
-    </div>
-    <h1 class="app-title">File Redaction System</h1>
-    <div class="auth-card">
-      <h2>🔐 Login</h2>
-      <input type="email" id="login-email" placeholder="Email" />
-      <input type="password" id="login-password" placeholder="Password" />
-      <button type="button" class="btn primary" id="login-btn">Login</button>
-      <p class="auth-switch">
-        Don't have an account?
-        <button type="button" class="btn-link" id="go-signup">Sign up</button>
-      </p>
-    </div>
-  </div>
 
-  <!-- Signup screen -->
-  <div id="signup-screen" class="auth-page screen" style="display: none;">
-    <h1 class="app-title">File Redaction System</h1>
-    <div class="auth-card">
-      <h2>📝 Sign up</h2>
-      <input type="text" id="signup-first" placeholder="First name" />
-      <input type="text" id="signup-last" placeholder="Last name" />
-      <input type="email" id="signup-email" placeholder="Email" />
-      <input type="password" id="signup-password" placeholder="Password" />
-      <button type="button" class="btn primary" id="signup-btn">Sign up</button>
-      <p class="auth-switch">
-        Already have an account?
-        <button type="button" class="btn-link" id="go-login">Back to Login</button>
-      </p>
-    </div>
-  </div>
+    <div class="main-container">
+        
+        <header class="app-header">
+            <div class="brand">
+                <i class="fa-solid fa-shield-halved"></i> File Redaction System
+            </div>
+            <p class="subtitle">Securely redact your sensitive documents instantly.</p>
+        </header>
 
-  <!-- Dashboard screen -->
-  <div id="dashboard-screen" class="dashboard-page screen" style="display: none;">
-    <header class="dashboard-header">
-      <button type="button" class="btn btn-hamburger" id="sidebar-toggle" aria-label="Menu">
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-      </button>
-    </header>
+        <main class="card">
+            
+            <div id="toast" class="toast hidden"></div>
 
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <h2 class="sidebar-title">History</h2>
-        <button type="button" class="btn btn-sidebar-close" id="sidebar-close" aria-label="Close">×</button>
-      </div>
-      <div class="sidebar-content">
-        <button type="button" class="btn danger small" id="clear-history-btn">Clear All</button>
-        <p id="history-empty" class="empty">No files processed yet</p>
-        <ul id="history-list" class="history"></ul>
-      </div>
-    </aside>
-    <div class="sidebar-overlay" id="sidebar-overlay" style="display: none;" aria-hidden="true"></div>
+            <div class="form-group">
+                <label>Select File Type</label>
+                <select id="file-type-selector">
+                    <option value="pdf">PDF Document</option>
+                    <option value="image">Image (PNG/JPG)</option>
+                    <option value="word">Word Document (DOCX)</option>
+                    <option value="excel">Excel Sheet (XLSX)</option>
+                </select>
+            </div>
 
-    <h1 class="dashboard-title">File Redaction System</h1>
-    <div class="dashboard-card">
-      <p class="welcome-text">Welcome, <b id="welcome-name">User</b></p>
-      <div class="section">
-        <label>File Type</label>
-        <div class="type-grid">
-          <button type="button" class="type-tile type-pdf selected" data-type="pdf">
-            <span class="type-icon">📄</span>
-            <span class="type-label">PDF</span>
-            <span class="type-desc">PDF only</span>
-          </button>
-          <button type="button" class="type-tile type-image" data-type="image">
-            <span class="type-icon">🖼️</span>
-            <span class="type-label">Image</span>
-            <span class="type-desc">JPG, PNG</span>
-          </button>
-          <button type="button" class="type-tile type-word" data-type="word">
-            <span class="type-icon">📝</span>
-            <span class="type-label">Word</span>
-            <span class="type-desc">DOCX only</span>
-          </button>
-          <button type="button" class="type-tile type-excel" data-type="excel">
-            <span class="type-icon">📊</span>
-            <span class="type-label">Excel</span>
-            <span class="type-desc">XLSX only</span>
-          </button>
-        </div>
-      </div>
-      <div class="section">
-        <label>Choose file</label>
-        <input type="file" id="file-input" accept=".pdf" />
-      </div>
-      <button type="button" class="btn primary" id="upload-btn">Upload & Redact</button>
+            <div class="drop-zone" id="drop-zone">
+                <i class="fa-solid fa-file-arrow-up"></i>
+                <p>Drag & Drop or <span class="browse-link" onclick="document.getElementById('file-input').click()">Browse</span></p>
+                <input type="file" id="file-input" hidden onchange="handleFileSelect(event)">
+                <p id="file-name" class="file-name"></p>
+            </div>
+
+            <button class="primary-btn" onclick="uploadFile()">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Redact Now
+            </button>
+
+            <div id="result-area" class="hidden">
+                <div class="success-box">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <span>Redaction Successful!</span>
+                    <a id="download-link" href="#" class="download-btn" download target="_blank">
+                        <i class="fa-solid fa-download"></i> Download Redacted File
+                    </a>
+                </div>
+                <button class="reset-btn" onclick="resetUI()">Redact Another File</button>
+            </div>
+            
+            <div id="loader" class="hidden">
+                <div class="spinner"></div>
+                <p>Processing...</p>
+            </div>
+        </main>
     </div>
 
-    <div class="dashboard-footer">
-      <button type="button" class="btn btn-logout" id="logout-btn">Logout</button>
-    </div>
-  </div>
-
-  <script src="js/app.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
