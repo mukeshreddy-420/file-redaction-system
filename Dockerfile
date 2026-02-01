@@ -1,36 +1,36 @@
-# Use an official Python runtime as a parent image
+# Use python 3.10
 FROM python:3.10-slim
 
 # Set environment variables
-# PYTHONDONTWRITEBYTECODE: Prevents Python from writing pyc files to disc
-# PYTHONUNBUFFERED: Prevents Python from buffering stdout and stderr
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# Set the working directory in the container
+# Set work directory to /app
 WORKDIR /app
 
-# Install system dependencies
-# These are crucial for file redaction:
-# - poppler-utils: Required for PDF processing (pdf2image, etc.)
-# - tesseract-ocr: Required for extracting text from images (OCR)
-# - libmagic1: Required for robust file type detection
-# - gcc & python3-dev: Required for compiling some Python C extensions
+# Install system dependencies for PDF/Image processing
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     poppler-utils \
     tesseract-ocr \
     libmagic1 \
-    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements file into the container
+# Copy requirements file
 COPY requirements.txt .
 
+# Install python dependencies
+# (Make sure your requirements.txt has 'numpy<2')
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy all project files
 COPY . .
 
+# --- CRITICAL CHANGE: Move into the backend folder ---
+WORKDIR /app/backend
+
+# Expose port 5000
 EXPOSE 5000
 
-CMD ["python", "app.py"]
+# Start the app using uvicorn pointing to 'main.py'
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
