@@ -1,12 +1,19 @@
-numpy<2
+# Backend dependencies (used by backend/*.py)
+# FastAPI & server
 fastapi==0.110.0
 uvicorn==0.29.0
 python-multipart==0.0.9
-sqlalchemy==2.0.29
-psycopg2-binary==2.9.9
-PyMuPDF==1.23.26
-opencv-python-headless==4.9.0.80
-python-docx==1.1.0
-openpyxl==3.1.2
 pydantic==2.6.4
-aiofiles==23.2.1
+
+# PDF redaction (main.py, redact_pdf.py)
+PyMuPDF==1.23.26
+
+# Image redaction - face detection (redact_image.py)
+opencv-python-headless==4.9.0.80
+numpy<2
+
+# Word redaction (redact_word.py)
+python-docx==1.1.0
+
+# Excel redaction (redact_excel.py)
+openpyxl==3.1.2
