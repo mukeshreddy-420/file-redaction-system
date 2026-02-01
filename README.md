@@ -1,105 +1,260 @@
-# 🔐 File Redaction Web Application
+# 🔏 File Redaction System
 
-A full-stack web application that allows users to **securely redact sensitive information**
-from different document types **while preserving the original file format**.
+A privacy-focused, web-based application designed to automatically redact sensitive information from documents and images. The platform supports multiple file formats and processes data securely in memory without permanent storage.
 
-This project was built as a **hackathon / academic project** with a focus on correctness,
-usability, and real-world relevance.
+This system is designed strictly for **data privacy and security**.
 
----
+**Python | Flask | HTML5 | Docker | Railway**
 
-## 🚀 Features
+## Objective
 
-- User **Signup & Login**
-- Upload and redact files
-- Supports multiple document formats
-- Download redacted files
-- View download history
-- Delete individual history items
-- Clear entire history
-- Logout functionality
-- Clean and responsive UI
+To build a robust redaction tool that demonstrates secure file processing capabilities without relying on third-party data handlers.
 
----
+The application aims to:
 
-## 📂 Supported File Types
+* Redact sensitive data from mixed media (PDF, Docs, Images) instantly.
+* Ensure zero-persistence data handling (files are wiped after processing).
+* Provide a simple, drag-and-drop interface for non-technical users.
+* Run efficiently in containerized environments.
 
-| File Type | Redaction Method |
-|----------|------------------|
-| PDF | Selective text redaction using overlays |
-| Images (JPG / PNG) | Automatic **face detection & redaction** |
-| Word (DOCX) | Selective sensitive text masking |
-| Excel (XLSX) | Cell content masking while preserving structure |
+## Features
 
----
+### User Features
 
-## 🛠️ Tech Stack
+* **Multi-Format Support:** PDF, Word (DOCX), Excel (XLSX), and Images (PNG/JPG).
+* **Drag-and-Drop Interface:** Intuitive file upload zone.
+* **Instant Processing:** Immediate feedback and download links.
+* **Visual Confirmation:** Success/Failure status indicators.
+* **Responsive Design:** Works on desktop and mobile browsers.
+
+### System Features
+
+* **Zero-Knowledge Architecture:** Files are processed and immediately discarded.
+* **Pattern Matching:** Automated detection of sensitive text patterns (optional configuration).
+* **Dockerized Deployment:** Consistent environment across local and cloud.
+* **Secure Transport:** HTTPS enforcement (on deployment).
+
+## Security and Design Principles
+
+* **No Permanent Storage:** Uploaded and processed files are deleted immediately after the session or download is complete.
+* **No User Profiling:** The system does not track user IP addresses or document content statistics.
+* **Input Sanitization:** Filenames and mime-types are validated to prevent malicious code execution.
+* **Memory Safety:** Large files are processed in chunks to prevent memory overflows.
+
+## System Architecture
 
 ### Frontend
 - HTML, CSS, vanilla JavaScript (no framework)
-- Single-page app with login, signup, and dashboard
 
 ### Backend
 - FastAPI
-- SQLite (database)
 - PyMuPDF (PDF processing)
 - OpenCV (image face detection)
 - python-docx (Word files)
 - openpyxl (Excel files)
 
----
+### Redaction Engine
 
-## ▶️ How to run
+* **PDF:** Uses `PyMuPDF` or `PyPDF2` for layer flattening and masking.
+* **Images:** Uses `OpenCV` to draw redaction boxes.
+* **Office:** Uses `python-docx` and `openpyxl` for XML manipulation.
 
-### Option A: Frontend only (uses hosted API)
+### Deployment
 
-The frontend is configured to use the hosted backend at `https://file-redaction-system-production.up.railway.app`.
+* **Docker** for containerization.
+* **Railway** for production hosting.
 
-1. **Open the frontend in a browser**
-   - Double-click `frontend/index.html`, or  
-   - Right-click → Open with → your browser.
+## Tech Stack
 
-2. Sign up / log in and use the app. No local backend needed.
+### Processing Libraries
 
----
+* `Pillow` (Image processing)
+* `PyMuPDF` / `ReportLab` (PDF manipulation)
+* `python-docx` (Word processing)
+* `openpyxl` (Excel processing)
 
-### Option B: Run everything locally
+### Containerization & Tooling
 
-**1. Backend**
+* Docker
+* Docker Compose
+* Gunicorn (WSGI Server)
+* Git & GitHub
+
+## Project Structure
+
+```text
+file-redaction-system/
+│
+├── app.py                  # Main Flask application entry point
+├── requirements.txt        # Python dependencies
+├── Dockerfile              # Container configuration
+├── docker-compose.yml      # Multi-container orchestration
+│
+├── core/
+│   ├── __init__.py
+│   ├── redactor.py         # Main redaction logic factory
+│   ├── pdf_handler.py      # PDF specific logic
+│   ├── image_handler.py    # Image specific logic
+│   └── docx_handler.py     # Word/Excel logic
+│
+├── static/
+│   ├── css/
+│   │   └── style.css       # Main stylesheet
+│   ├── js/
+│   │   └── main.js         # Frontend upload logic
+│   └── images/
+│
+├── templates/
+│   ├── index.html          # Landing page
+│   └── result.html         # Download page
+│
+├── uploads/                # Temp folder (gitignored)
+├── processed/              # Temp folder (gitignored)
+├── .env                    # Environment variables
+└── README.md
+
+```
+
+## Inputs
+
+* **File:** Binary file stream (PDF, DOCX, XLSX, PNG, JPG).
+* **Redaction Mode:** (Optional) Manual selection or auto-pattern (e.g., Email, SSN).
+
+## Outputs
+
+* **Processed File:** Downloadable binary stream of the redacted document.
+* **Status Code:** JSON response indicating success or specific error type.
+
+## How the Application Works
+
+1. User opens the web application.
+2. Selects the file type from the dropdown (PDF, Image, etc.).
+3. Drags and drops the sensitive document into the upload area.
+4. Clicks **Redact Now**.
+5. The backend receives the file, validates the extension, and identifies the content.
+6. The specific handler (e.g., `pdf_handler.py`) applies the redaction mask.
+7. The system saves the result to a temporary path.
+8. User clicks **Download Redacted File**.
+9. **Cleanup:** A background job or trigger deletes the files from the server.
+
+## Live Deployment
+
+**Live Web Application:**
+[https://accurate-flexibility-production.up.railway.app/](https://accurate-flexibility-production.up.railway.app/)
+
+## Quick Start (Local Development)
+
+### Option 1: Run Locally (Manual Setup)
+
+**Step 1: Clone the Repository**
 
 ```bash
-cd backend
+git clone https://github.com/your-username/file-redaction-system.git
+cd file-redaction-system
+
+```
+
+**Step 2: Setup Virtual Environment**
+
+```bash
 python -m venv venv
-venv\Scripts\activate          # Windows
-# source venv/bin/activate     # macOS/Linux
-pip install -r ../requirements.txt
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# Windows
+venv\Scripts\activate
+# Mac/Linux
+source venv/bin/activate
+
 ```
 
-Backend will be at **http://localhost:8000**.
-
-**2. Point the frontend at your local backend**
-
-Edit `frontend/js/app.js` and change the first line to:
-
-```javascript
-var API_BASE = "http://localhost:8000";
-```
-
-**3. Serve the frontend (recommended)**
-
-From a new terminal:
+**Step 3: Install Dependencies**
 
 ```bash
-cd frontend
-npx serve .
+pip install -r requirements.txt
+
 ```
 
-Then open the URL shown (e.g. **http://localhost:3000**) in your browser.
+**Step 4: Run the Application**
 
-Or open `frontend/index.html` directly in the browser; it will still work if the backend is running and you set `API_BASE` to `http://localhost:8000`.
+```bash
+python app.py
 
----
+```
 
-## 🧱 System Architecture
+The app will be available at `http://127.0.0.1:5000`.
 
+### Option 2: Run Using Docker (Recommended)
+
+**From the project root directory:**
+
+```bash
+docker-compose build
+docker-compose up
+
+```
+
+Docker will handle all dependencies and expose the app on port 5000 or 8000.
+
+## API Endpoints
+
+### 1. Upload and Redact
+
+**Endpoint:**
+`POST /upload`
+
+Uploads a file and initiates the redaction process.
+
+**Request Type:** `multipart/form-data`
+
+**Form Fields:**
+
+* `file` (File Object) – The document to redact.
+* `file_type` (string) – "pdf", "image", "docx", etc.
+
+**Response:**
+
+```json
+{
+  "status": "success",
+  "filename": "redacted_document.pdf",
+  "download_url": "/download/redacted_document.pdf"
+}
+
+```
+
+### 2. Download File
+
+**Endpoint:**
+`GET /download/<filename>`
+
+Retrieves the processed file. Once downloaded, the file is queued for deletion.
+
+## Edge Cases and Limitations
+
+### Positive Edge Cases
+
+* **Mixed Extensions:** Handles files with incorrect extensions if MIME type is valid.
+* **High Resolution:** Maintains readability of non-redacted parts in high-res images.
+
+### Negative Edge Cases
+
+* **Encrypted PDFs:** Cannot process password-protected PDF files.
+* **Complex Formatting:** Heavily formatted Word documents may lose some alignment after redaction.
+* **Concurrency:** Extremely high traffic may fill the temporary disk space before cleanup runs.
+
+## Future Enhancements
+
+* **AI-Powered Detection:** Integrate NLP to automatically detect and redact names/emails.
+* **Preview Mode:** Allow users to draw boxes on the document before finalizing redaction.
+* **Batch Processing:** Upload ZIP files containing multiple documents.
+* **API Key Access:** Allow other developers to use the redaction engine programmatically.
+
+## Contributing
+
+Contributions are welcome. You may:
+
+* Submit pull requests for UI improvements.
+* Add support for new file formats (e.g., CSV, PPTX).
+* Improve the security cleanup logic.
+
+## Authors
+
+* [Mukesh Reddy / Likith ]
